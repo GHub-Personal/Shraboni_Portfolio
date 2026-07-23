@@ -1,0 +1,6 @@
+{
+  "name": "Creative Portfolio & Admin",
+  "description": "A modern portfolio website and secure admin dashboard for a creative designer.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

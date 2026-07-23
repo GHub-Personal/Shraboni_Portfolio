@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', sans-serif;
+  --font-display: 'Syne', sans-serif;
+  --color-accent: #c4fb6d; /* Vibrant lime green */
+  --color-accent-hover: #b2e85a;
+  --color-bg-dark: #0a0a0a;
+}
+
+@layer utilities {
+  .stroke-text {
+    -webkit-text-stroke-width: 1px;
+    -webkit-text-stroke-color: rgba(255, 255, 255, 0.2);
+    color: transparent;
+  }
+}
+
+body {
+  background-color: var(--color-bg-dark);
+  color: white;
+  font-family: var(--font-sans);
+}
+
+h1, h2, h3, h4, h5, h6, .font-display {
+  font-family: var(--font-display);
+}
