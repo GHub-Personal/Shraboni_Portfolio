@@ -28,10 +28,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }, []);
 
   useEffect(() => {
-    if (!loading && !session) {
+    if (!loading && !session && pathname !== '/admin/login') {
       router.push('/admin/login');
     }
-  }, [loading, session, router]);
+  }, [loading, session, router, pathname]);
+
+  if (pathname === '/admin/login') {
+    return <>{children}</>;
+  }
 
   if (loading) {
     return (
