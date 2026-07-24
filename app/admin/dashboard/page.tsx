@@ -21,6 +21,7 @@ export default function AdminDashboard() {
   const [imageUrl, setImageUrl] = useState('');
   const [liveLink, setLiveLink] = useState('');
   const [isFeatured, setIsFeatured] = useState(false);
+  const [aspectRatio, setAspectRatio] = useState('1:1');
 
   useEffect(() => {
     fetchDesigns();
@@ -83,6 +84,7 @@ export default function AdminDashboard() {
       image_url: imageUrl,
       live_link: liveLink || null,
       is_featured: isFeatured,
+      aspect_ratio: aspectRatio || '1:1',
     };
 
     let error;
@@ -139,6 +141,7 @@ export default function AdminDashboard() {
     setImageUrl(design.image_url);
     setLiveLink(design.live_link || '');
     setIsFeatured(design.is_featured);
+    setAspectRatio(design.aspect_ratio || '1:1');
     setIsModalOpen(true);
   };
 
@@ -150,6 +153,7 @@ export default function AdminDashboard() {
     setImageUrl('');
     setLiveLink('');
     setIsFeatured(false);
+    setAspectRatio('1:1');
   };
 
   return (
@@ -283,14 +287,45 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-zinc-400 mb-2">Description</label>
-                  <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-3 focus:ring-2 focus:ring-white/20 outline-none transition-all resize-none"></textarea>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-zinc-400 mb-2">Aspect Ratio (Dimensions)</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="e.g. 16:9, 4:5, 1:1"
+                        value={aspectRatio}
+                        onChange={(e) => setAspectRatio(e.target.value)}
+                        className="flex-1 bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-3 focus:ring-2 focus:ring-white/20 outline-none transition-all"
+                        required
+                      />
+                    </div>
+                    <div className="flex gap-1.5 mt-2 flex-wrap">
+                      {['1:1', '16:9', '9:16', '4:5'].map(ratio => (
+                        <button
+                          key={ratio}
+                          type="button"
+                          onClick={() => setAspectRatio(ratio)}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+                            aspectRatio === ratio
+                              ? 'bg-white text-zinc-950 border-white shadow-sm'
+                              : 'bg-zinc-950 text-zinc-400 border-zinc-800 hover:border-zinc-700 hover:text-white'
+                          }`}
+                        >
+                          {ratio}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-zinc-400 mb-2">Live Preview Link (Optional)</label>
+                    <input type="url" value={liveLink} onChange={(e) => setLiveLink(e.target.value)} className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-3 focus:ring-2 focus:ring-white/20 outline-none transition-all" placeholder="https://..." />
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-zinc-400 mb-2">Live Preview Link (Optional)</label>
-                  <input type="url" value={liveLink} onChange={(e) => setLiveLink(e.target.value)} className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-3 focus:ring-2 focus:ring-white/20 outline-none transition-all" placeholder="https://..." />
+                  <label className="block text-sm font-medium text-zinc-400 mb-2">Description</label>
+                  <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-3 focus:ring-2 focus:ring-white/20 outline-none transition-all resize-none"></textarea>
                 </div>
 
                 <div className="flex items-center gap-3 pt-2">

@@ -8,6 +8,7 @@ export interface Design {
   image_url: string;
   live_link?: string;
   is_featured: boolean;
+  aspect_ratio?: string;
   created_at: string;
 }
 

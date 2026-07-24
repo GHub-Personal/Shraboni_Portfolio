@@ -45,6 +45,13 @@ export default function Portfolio() {
     ? designs 
     : designs.filter(d => d.category === activeCategory);
 
+  const featuredDesigns = designs.filter(d => d.is_featured);
+
+  const getAspectStyle = (ratio: string | undefined) => {
+    if (!ratio) return '1/1';
+    return ratio.replace(':', '/');
+  };
+
   const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     alert('Thank you for your message! (In a real app, this would send an email or save to DB)');
@@ -183,6 +190,53 @@ export default function Portfolio() {
         </motion.div>
       </div>
 
+      {/* Dynamic Featured Section */}
+      {featuredDesigns.length > 0 && (
+        <section className="py-24 px-6 relative overflow-hidden bg-gradient-to-b from-zinc-900/30 via-transparent to-transparent border-b border-white/5">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+              <div>
+                <span className="text-accent text-xs font-bold uppercase tracking-widest block mb-2">// Featured Masterpieces</span>
+                <h2 className="text-4xl md:text-6xl font-display font-bold uppercase tracking-tighter">
+                  Selected <span className="text-zinc-500">Works</span>
+                </h2>
+              </div>
+              <p className="text-zinc-400 max-w-sm text-sm">
+                A handpicked collection of designs showcased in their original, uncropped dimensions.
+              </p>
+            </div>
+            
+            <div className="flex gap-6 overflow-x-auto pb-8 pt-4 no-scrollbar snap-x snap-mandatory scroll-smooth">
+              {featuredDesigns.map((design) => {
+                const aspect = getAspectStyle(design.aspect_ratio);
+                return (
+                  <motion.div
+                    key={design.id}
+                    whileHover={{ y: -8 }}
+                    className="shrink-0 snap-start bg-zinc-900/40 backdrop-blur-md border border-white/5 rounded-3xl overflow-hidden hover:border-accent/30 transition-all cursor-pointer group h-[320px] md:h-[480px]"
+                    style={{ aspectRatio: aspect }}
+                    onClick={() => setSelectedDesign(design)}
+                  >
+                    <div className="w-full h-full relative">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-6 z-10">
+                        <span className="text-accent text-xs font-bold uppercase tracking-widest mb-1">{design.category}</span>
+                        <h4 className="text-xl font-bold text-white uppercase tracking-tight leading-tight">{design.title}</h4>
+                      </div>
+                      <img
+                        src={design.image_url.split(',')[0]}
+                        alt={design.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                        loading="lazy"
+                      />
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Portfolio Section */}
       <section id="portfolio" className="py-24 px-6 relative">
         <div className="max-w-7xl mx-auto">
@@ -207,49 +261,50 @@ export default function Portfolio() {
             </div>
           </div>
 
-          {/* Grid */}
-          <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8" style={{ perspective: 1200 }}>
+          {/* Pinterest-style Masonry Columns */}
+          <div className="columns-1 md:columns-2 lg:columns-3 gap-6 lg:gap-8 space-y-6 lg:space-y-8">
             <AnimatePresence>
-              {filteredDesigns.map((design, index) => (
-                <motion.div 
-                  layout
-                  initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.9, y: -20 }}
-                  whileHover={{ 
-                    scale: 1.03, 
-                    rotateX: 2, 
-                    rotateY: -2,
-                    z: 30,
-                    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(196,251,109,0.15)"
-                  }}
-                  transition={{ duration: 0.5, type: "spring", stiffness: 300, damping: 20 }}
-                  key={design.id} 
-                  className="group relative bg-white/5 backdrop-blur-xl rounded-[2.5rem] overflow-hidden border border-white/10 hover:border-accent/40 transition-colors cursor-pointer block-aspect shadow-[0_8px_32px_rgba(0,0,0,0.3)] transform-gpu"
-                  onClick={() => setSelectedDesign(design)}
-                >
-                  <div className="aspect-[4/5] md:aspect-square overflow-hidden bg-transparent relative">
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 backdrop-blur-[2px]"></div>
-                    <img 
-                      src={design.image_url.split(',')[0]} 
-                      alt={design.title} 
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                      loading="lazy"
-                    />
-                    
-                    {/* Hover Info */}
-                    <div className="absolute bottom-0 left-0 w-full p-8 translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 z-20 flex flex-col justify-end h-full">
-                      <span className="text-accent text-xs font-bold uppercase tracking-widest mb-2">{design.category}</span>
-                      <h3 className="text-3xl font-display font-bold text-white leading-tight mb-2">{design.title}</h3>
-                      <div className="w-12 h-12 rounded-full bg-accent/90 backdrop-blur-md text-zinc-950 flex items-center justify-center self-end mt-4 shadow-lg shadow-accent/20">
-                        <ArrowUpRight className="w-6 h-6" />
+              {filteredDesigns.map((design) => {
+                const aspect = getAspectStyle(design.aspect_ratio);
+                return (
+                  <motion.div 
+                    layout
+                    initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.9, y: -20 }}
+                    whileHover={{ 
+                      scale: 1.02,
+                      boxShadow: "0 20px 40px -10px rgba(0, 0, 0, 0.5), 0 0 30px rgba(196,251,109,0.1)"
+                    }}
+                    transition={{ duration: 0.4, type: "spring", stiffness: 300, damping: 22 }}
+                    key={design.id} 
+                    className="break-inside-avoid group relative bg-white/5 backdrop-blur-xl rounded-[2rem] overflow-hidden border border-white/10 hover:border-accent/40 transition-colors cursor-pointer shadow-[0_8px_32px_rgba(0,0,0,0.3)] transform-gpu w-full inline-block"
+                    style={{ aspectRatio: aspect }}
+                    onClick={() => setSelectedDesign(design)}
+                  >
+                    <div className="w-full h-full overflow-hidden bg-transparent relative">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 backdrop-blur-[2px]"></div>
+                      <img 
+                        src={design.image_url.split(',')[0]} 
+                        alt={design.title} 
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        loading="lazy"
+                      />
+                      
+                      {/* Hover Info */}
+                      <div className="absolute bottom-0 left-0 w-full p-8 translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 z-20 flex flex-col justify-end h-full">
+                        <span className="text-accent text-xs font-bold uppercase tracking-widest mb-2">{design.category}</span>
+                        <h3 className="text-2xl font-display font-bold text-white leading-tight mb-2">{design.title}</h3>
+                        <div className="w-10 h-10 rounded-full bg-accent/90 backdrop-blur-md text-zinc-950 flex items-center justify-center self-end mt-4 shadow-lg shadow-accent/20">
+                          <ArrowUpRight className="w-5 h-5" />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                );
+              })}
             </AnimatePresence>
-          </motion.div>
+          </div>
           {filteredDesigns.length === 0 && (
             <div className="py-32 text-center text-zinc-500 font-display text-2xl uppercase">
               No designs found in this category.
@@ -258,17 +313,7 @@ export default function Portfolio() {
         </div>
       </section>
 
-      {/* Featured Carousel Section */}
-      <section className="py-24 px-6 relative bg-zinc-950/50 border-y border-white/5">
-        <PdfCarousel 
-          title="Featured Carousel Design"
-          images={[
-            '/carousel/slide1.png',
-            '/carousel/slide2.png',
-            '/carousel/slide3.png'
-          ]}
-        />
-      </section>
+
 
       {/* Contact Section */}
       <section id="contact" className="py-32 px-6 max-w-7xl mx-auto relative">
