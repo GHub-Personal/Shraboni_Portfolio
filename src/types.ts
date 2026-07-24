@@ -1,4 +1,4 @@
-export type DesignCategory = 'Posters' | 'Carousels' | 'Thumbnails' | 'Banners';
+export type DesignCategory = 'Posters' | 'Carousels' | 'Thumbnails' | 'Banners' | 'Brand Collaborations' | 'Social Media Management' | 'Content Writing';
 
 export interface Design {
   id: string;
@@ -23,4 +23,12 @@ export interface ProfileSettings {
   instagram_url: string;
   dribbble_url: string;
   behance_url: string;
+}
+
+export interface Feedback {
+  id: string;
+  screenshot_url: string;
+  provider_name: string;
+  rating: number;
+  created_at: string;
 }

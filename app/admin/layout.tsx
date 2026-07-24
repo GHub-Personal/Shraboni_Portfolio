@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '../../src/lib/supabase';
-import { LayoutDashboard, User, LogOut } from 'lucide-react';
+import { LayoutDashboard, User, LogOut, MessageSquare } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<any>(null);
@@ -83,6 +83,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           >
             <User className="w-5 h-5" />
             <span className="font-medium">Profile</span>
+          </Link>
+          <Link
+            href="/admin/dashboard/feedbacks"
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+              pathname === '/admin/dashboard/feedbacks'
+                ? 'bg-zinc-800 text-white'
+                : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
+            }`}
+          >
+            <MessageSquare className="w-5 h-5" />
+            <span className="font-medium">Feedbacks</span>
           </Link>
         </nav>
 

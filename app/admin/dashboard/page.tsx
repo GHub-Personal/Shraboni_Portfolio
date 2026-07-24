@@ -5,7 +5,7 @@ import { supabase } from '../../../src/lib/supabase';
 import { Design, DesignCategory } from '../../../src/types';
 import { Plus, Pencil, Trash2, X, Upload } from 'lucide-react';
 
-const CATEGORIES: DesignCategory[] = ['Posters', 'Carousels', 'Thumbnails', 'Banners'];
+const CATEGORIES: DesignCategory[] = ['Posters', 'Carousels', 'Thumbnails', 'Banners', 'Brand Collaborations', 'Social Media Management', 'Content Writing'];
 
 export default function AdminDashboard() {
   const [designs, setDesigns] = useState<Design[]>([]);

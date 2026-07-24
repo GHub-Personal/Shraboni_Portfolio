@@ -2,17 +2,19 @@
 
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../src/lib/supabase';
-import { Design, ProfileSettings } from '../src/types';
+import { Design, ProfileSettings, Feedback } from '../src/types';
 import { ExternalLink, Instagram, Linkedin, X, Mail, ArrowUpRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { PdfCarousel } from '../src/components/ui/PdfCarousel';
 import { parseAspectRatio } from '../src/lib/utils';
+import { CloudOfTrust } from '../src/components/ui/CloudOfTrust';
 
-const CATEGORIES = ['All', 'Posters', 'Carousels', 'Thumbnails', 'Banners'];
+const CATEGORIES = ['All', 'Posters', 'Carousels', 'Thumbnails', 'Banners', 'Brand Collaborations', 'Social Media Management', 'Content Writing'];
 
 export default function Portfolio() {
   const [profile, setProfile] = useState<ProfileSettings | null>(null);
   const [designs, setDesigns] = useState<Design[]>([]);
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [activeCategory, setActiveCategory] = useState('All');
   const [selectedDesign, setSelectedDesign] = useState<Design | null>(null);
   const [loading, setLoading] = useState(true);
@@ -39,13 +41,15 @@ export default function Portfolio() {
 
   const fetchData = async () => {
     try {
-      const [profileRes, designsRes] = await Promise.all([
+      const [profileRes, designsRes, feedbacksRes] = await Promise.all([
         supabase.from('profile_settings').select('*').limit(1).single(),
-        supabase.from('designs').select('*').order('created_at', { ascending: false })
+        supabase.from('designs').select('*').order('created_at', { ascending: false }),
+        supabase.from('feedbacks').select('*').order('created_at', { ascending: false })
       ]);
 
       if (profileRes.data) setProfile(profileRes.data);
       if (designsRes.data) setDesigns(designsRes.data);
+      if (feedbacksRes.data) setFeedbacks(feedbacksRes.data);
     } catch (e) {
       console.error(e);
     } finally {
@@ -336,13 +340,14 @@ export default function Portfolio() {
           </div>
           {filteredDesigns.length === 0 && (
             <div className="py-32 text-center text-zinc-500 font-display text-2xl uppercase">
-              No designs found in this category.
+              No work found in this category.
             </div>
           )}
         </div>
       </section>
 
-
+      {/* Cloud of Trust Testimonial Section */}
+      <CloudOfTrust feedbacks={feedbacks} />
 
       {/* Contact Section */}
       <section id="contact" className="py-32 px-6 max-w-7xl mx-auto relative">
