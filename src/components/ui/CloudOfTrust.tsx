@@ -178,7 +178,7 @@ export function CloudOfTrust({ feedbacks }: CloudOfTrustProps) {
                   </div>
 
                   {/* Speech Bubble Arrow Tail */}
-                  <div className={`absolute -bottom-2.5 left-8 w-5 h-5 bg-zinc-900/60 border-r border-b border-white/10 group-hover:border-white/30 rotate-45 z-[-1]`} style={{ borderClip: 'rect(0,0,0,0)' }} />
+                  <div className="absolute -bottom-2.5 left-8 w-5 h-5 bg-zinc-900/60 border-r border-b border-white/10 group-hover:border-white/30 rotate-45 z-[-1]" />
                 </motion.div>
               </motion.div>
             </motion.div>
