@@ -27,6 +27,17 @@ export default function AdminDashboard() {
     fetchDesigns();
   }, []);
 
+  useEffect(() => {
+    if (isModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isModalOpen]);
+
   const fetchDesigns = async () => {
     const { data, error } = await supabase
       .from('designs')

@@ -6,6 +6,7 @@ import { Design, ProfileSettings } from '../src/types';
 import { ExternalLink, Instagram, Linkedin, X, Mail, ArrowUpRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { PdfCarousel } from '../src/components/ui/PdfCarousel';
+import { parseAspectRatio } from '../src/lib/utils';
 
 const CATEGORIES = ['All', 'Posters', 'Carousels', 'Thumbnails', 'Banners'];
 
@@ -24,6 +25,17 @@ export default function Portfolio() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (selectedDesign) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [selectedDesign]);
 
   const fetchData = async () => {
     try {
@@ -48,8 +60,8 @@ export default function Portfolio() {
   const featuredDesigns = designs.filter(d => d.is_featured);
 
   const getAspectStyle = (ratio: string | undefined) => {
-    if (!ratio) return '1/1';
-    return ratio.replace(':', '/');
+    if (!ratio) return undefined;
+    return parseAspectRatio(ratio);
   };
 
   const handleContactSubmit = (e: React.FormEvent) => {
@@ -105,7 +117,7 @@ export default function Portfolio() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative px-6 pt-40 pb-24 md:pt-48 md:pb-32 max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12 lg:gap-24">
+      <section className="relative px-6 pt-36 pb-24 md:pt-48 md:pb-32 max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-16">
         <div className="flex-1 space-y-8 z-10 w-full">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -123,53 +135,65 @@ export default function Portfolio() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="flex flex-col md:flex-row items-start md:items-center gap-6"
+            className="space-y-4"
           >
-            {profile?.avatar_url && (
-              <motion.div 
-                whileHover={{ scale: 1.1, rotateZ: 5 }}
-                className="w-24 h-24 shrink-0 rounded-full overflow-hidden border-2 border-accent relative shadow-[0_0_30px_rgba(196,251,109,0.4)]"
-              >
-                <img src={profile.avatar_url} alt={profile.name} className="w-full h-full object-cover" />
-              </motion.div>
-            )}
-            <div>
-              <p className="text-xl md:text-2xl text-zinc-300 font-light max-w-lg leading-relaxed">
-                {profile?.tagline || 'Designing high-converting thumbnails, banners, and digital assets.'}
-              </p>
-              <p className="text-zinc-500 mt-2">
-                {profile?.bio || 'Elevating brands through striking visual identity.'}
-              </p>
-            </div>
+            <p className="text-xl md:text-3xl text-zinc-200 font-light max-w-xl leading-relaxed">
+              {profile?.tagline || 'Designing high-converting thumbnails, banners, and digital assets.'}
+            </p>
+            <p className="text-zinc-400 text-lg max-w-lg leading-relaxed">
+              {profile?.bio || 'Elevating brands through striking visual identity.'}
+            </p>
           </motion.div>
 
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="flex flex-wrap items-center gap-6 pt-8"
+            className="flex flex-wrap items-center gap-6 pt-4"
           >
             <button 
               onClick={() => document.getElementById('portfolio')?.scrollIntoView({ behavior: 'smooth' })} 
-              className="px-8 py-4 bg-accent text-zinc-950 font-bold uppercase tracking-widest rounded-full hover:bg-white transition-colors flex items-center gap-2"
+              className="px-8 py-4 bg-accent text-zinc-950 font-bold uppercase tracking-widest rounded-full hover:bg-white transition-all transform hover:scale-105 flex items-center gap-2 shadow-[0_0_30px_rgba(196,251,109,0.3)] cursor-pointer"
             >
               Explore Work
               <ArrowUpRight className="w-5 h-5" />
             </button>
             <div className="flex items-center gap-4">
               {profile?.linkedin_url && (
-                <a href={profile.linkedin_url} target="_blank" rel="noreferrer" className="text-zinc-400 hover:text-accent transition-colors p-3 border border-white/10 hover:border-accent/50 rounded-full">
+                <a href={profile.linkedin_url} target="_blank" rel="noreferrer" className="text-zinc-400 hover:text-accent transition-colors p-3.5 border border-white/10 hover:border-accent/50 rounded-full bg-white/5 backdrop-blur-md">
                   <Linkedin className="w-5 h-5" />
                 </a>
               )}
               {profile?.instagram_url && (
-                <a href={profile.instagram_url} target="_blank" rel="noreferrer" className="text-zinc-400 hover:text-accent transition-colors p-3 border border-white/10 hover:border-accent/50 rounded-full">
+                <a href={profile.instagram_url} target="_blank" rel="noreferrer" className="text-zinc-400 hover:text-accent transition-colors p-3.5 border border-white/10 hover:border-accent/50 rounded-full bg-white/5 backdrop-blur-md">
                   <Instagram className="w-5 h-5" />
                 </a>
               )}
             </div>
           </motion.div>
         </div>
+
+        {profile?.avatar_url && (
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="relative flex items-center justify-center shrink-0 mt-8 lg:mt-0"
+          >
+            {/* Ambient Background Glows */}
+            <div className="absolute inset-0 bg-accent/20 rounded-full blur-3xl -z-10 animate-pulse"></div>
+            <div className="absolute -inset-4 bg-gradient-to-r from-accent via-purple-500 to-accent rounded-full opacity-30 blur-xl -z-10"></div>
+
+            <motion.div 
+              whileHover={{ scale: 1.05, rotate: 2 }}
+              className="w-64 h-64 sm:w-80 sm:h-80 lg:w-96 lg:h-96 rounded-full overflow-hidden border-4 border-white/20 p-2 bg-white/5 backdrop-blur-2xl shadow-[0_0_60px_rgba(196,251,109,0.25)] relative"
+            >
+              <div className="w-full h-full rounded-full overflow-hidden relative">
+                <img src={profile.avatar_url} alt={profile.name} className="w-full h-full object-cover" />
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
       </section>
 
       {/* Scrolling Text Divider */}
@@ -192,46 +216,51 @@ export default function Portfolio() {
 
       {/* Dynamic Featured Section */}
       {featuredDesigns.length > 0 && (
-        <section className="py-24 px-6 relative overflow-hidden bg-gradient-to-b from-zinc-900/30 via-transparent to-transparent border-b border-white/5">
+        <section className="py-24 px-6 relative overflow-hidden bg-gradient-to-b from-zinc-950 via-zinc-900/40 to-zinc-950 border-y border-white/5">
           <div className="max-w-7xl mx-auto">
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
               <div>
-                <span className="text-accent text-xs font-bold uppercase tracking-widest block mb-2">// Featured Masterpieces</span>
+                <span className="inline-block px-3 py-1 bg-accent/10 border border-accent/30 text-accent text-xs font-bold uppercase tracking-widest rounded-full mb-3 shadow-[0_0_15px_rgba(196,251,109,0.2)]">
+                  // Curated Highlights
+                </span>
                 <h2 className="text-4xl md:text-6xl font-display font-bold uppercase tracking-tighter">
-                  Selected <span className="text-zinc-500">Works</span>
+                  Featured <span className="text-zinc-500">Designs</span>
                 </h2>
               </div>
-              <p className="text-zinc-400 max-w-sm text-sm">
-                A handpicked collection of designs showcased in their original, uncropped dimensions.
+              <p className="text-zinc-400 max-w-sm text-sm font-light">
+                Handpicked showcase of our most compelling visual assets, displayed in their natural dimensions.
               </p>
             </div>
             
-            <div className="flex gap-6 overflow-x-auto pb-8 pt-4 no-scrollbar snap-x snap-mandatory scroll-smooth">
-              {featuredDesigns.map((design) => {
-                const aspect = getAspectStyle(design.aspect_ratio);
-                return (
-                  <motion.div
-                    key={design.id}
-                    whileHover={{ y: -8 }}
-                    className="shrink-0 snap-start bg-zinc-900/40 backdrop-blur-md border border-white/5 rounded-3xl overflow-hidden hover:border-accent/30 transition-all cursor-pointer group h-[320px] md:h-[480px]"
-                    style={{ aspectRatio: aspect }}
-                    onClick={() => setSelectedDesign(design)}
-                  >
-                    <div className="w-full h-full relative">
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-6 z-10">
-                        <span className="text-accent text-xs font-bold uppercase tracking-widest mb-1">{design.category}</span>
-                        <h4 className="text-xl font-bold text-white uppercase tracking-tight leading-tight">{design.title}</h4>
+            <div className="relative group">
+              <div className="flex gap-6 overflow-x-auto pb-8 pt-4 no-scrollbar snap-x snap-mandatory scroll-smooth">
+                {featuredDesigns.map((design) => {
+                  const aspect = getAspectStyle(design.aspect_ratio);
+                  return (
+                    <motion.div
+                      key={design.id}
+                      whileHover={{ y: -10, scale: 1.02 }}
+                      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                      className="shrink-0 snap-start bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden hover:border-accent/60 transition-all duration-300 cursor-pointer group/card h-[320px] md:h-[480px] shadow-2xl hover:shadow-[0_20px_50px_rgba(196,251,109,0.15)]"
+                      style={{ aspectRatio: aspect }}
+                      onClick={() => setSelectedDesign(design)}
+                    >
+                      <div className="w-full h-full relative overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-transparent opacity-0 group-hover/card:opacity-100 transition-all duration-300 flex flex-col justify-end p-8 z-10 backdrop-blur-[2px]">
+                          <span className="text-accent text-xs font-bold uppercase tracking-widest mb-1">{design.category}</span>
+                          <h4 className="text-2xl font-bold text-white uppercase tracking-tight leading-tight">{design.title}</h4>
+                        </div>
+                        <img
+                          src={design.image_url.split(',')[0]}
+                          alt={design.title}
+                          className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-700"
+                          loading="lazy"
+                        />
                       </div>
-                      <img
-                        src={design.image_url.split(',')[0]}
-                        alt={design.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                        loading="lazy"
-                      />
-                    </div>
-                  </motion.div>
-                );
-              })}
+                    </motion.div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </section>
@@ -358,64 +387,78 @@ export default function Portfolio() {
         &copy; {new Date().getFullYear()} {profile?.name || 'DESIGNER'}. All rights reserved.
       </footer>
 
-      {/* Lightbox Modal */}
+      {/* Side-by-Side Lightbox Modal */}
       <AnimatePresence>
         {selectedDesign && (
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8 bg-black/90 backdrop-blur-xl" 
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8 bg-black/95 backdrop-blur-2xl" 
             onClick={() => setSelectedDesign(null)}
           >
             <button 
-              className="absolute top-6 right-6 p-3 bg-zinc-900/80 hover:bg-accent hover:text-zinc-950 text-white rounded-full transition-colors z-50"
+              className="absolute top-6 right-6 p-3 bg-zinc-900/90 hover:bg-accent hover:text-zinc-950 text-white rounded-full transition-colors z-50 shadow-lg cursor-pointer"
               onClick={(e) => { e.stopPropagation(); setSelectedDesign(null); }}
             >
               <X className="w-6 h-6" />
             </button>
             
             <motion.div 
-              initial={{ scale: 0.9, opacity: 0, y: 40, rotateX: 10 }}
-              animate={{ scale: 1, opacity: 1, y: 0, rotateX: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 40, rotateX: 10 }}
+              initial={{ scale: 0.9, opacity: 0, y: 30 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 30 }}
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
-              style={{ transformPerspective: 1200 }}
-              className="relative w-full max-w-7xl max-h-full flex flex-col lg:flex-row bg-white/5 backdrop-blur-2xl rounded-[2.5rem] overflow-hidden border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.5)]" 
+              className="relative w-full max-w-7xl max-h-[90vh] flex flex-col lg:flex-row bg-zinc-950/80 backdrop-blur-3xl rounded-[2.5rem] overflow-hidden border border-white/10 shadow-[0_25px_70px_rgba(0,0,0,0.8)]" 
               onClick={e => e.stopPropagation()}
             >
-              <div className="flex-1 bg-transparent flex items-center justify-center p-4 lg:p-12 min-h-[40vh] max-h-[60vh] lg:max-h-[85vh]">
+              {/* Left Side: Design Image / Carousel */}
+              <div className="flex-1 bg-transparent flex items-center justify-center p-6 lg:p-12 min-h-[40vh] max-h-[60vh] lg:max-h-[85vh] overflow-hidden">
                 {selectedDesign.category === 'Carousels' ? (
-                  <PdfCarousel images={selectedDesign.image_url.split(',')} />
+                  <PdfCarousel images={selectedDesign.image_url.split(',')} aspectRatio={selectedDesign.aspect_ratio} />
                 ) : (
-                  <img src={selectedDesign.image_url.split(',')[0]} alt={selectedDesign.title} className="max-w-full max-h-full object-contain rounded-2xl shadow-2xl" />
+                  <img 
+                    src={selectedDesign.image_url.split(',')[0]} 
+                    alt={selectedDesign.title} 
+                    className="max-w-full max-h-full object-contain rounded-2xl shadow-2xl" 
+                    style={{ aspectRatio: getAspectStyle(selectedDesign.aspect_ratio) }}
+                  />
                 )}
               </div>
               
-              <div className="w-full lg:w-[450px] bg-black/40 backdrop-blur-3xl p-8 lg:p-12 flex flex-col justify-center overflow-y-auto border-t lg:border-t-0 lg:border-l border-white/5 max-h-[40vh] lg:max-h-[85vh]">
-                <div>
-                  <span className="text-xs font-bold uppercase tracking-widest text-accent mb-4 block">
-                    {selectedDesign.category}
-                  </span>
-                  <h3 className="text-4xl lg:text-5xl font-display font-bold text-white leading-tight mb-6 uppercase tracking-tighter">
-                    {selectedDesign.title}
-                  </h3>
-                  <div className="w-12 h-1 bg-white/10 mb-8"></div>
-                  <p className="text-zinc-400 leading-relaxed text-base lg:text-lg mb-8 font-light">
-                    {selectedDesign.description || 'No description provided.'}
+              {/* Right Side: Consistent Text Description Panel */}
+              <div className="w-full lg:w-[460px] bg-black/40 backdrop-blur-3xl p-6 md:p-8 lg:p-10 flex flex-col justify-between border-t lg:border-t-0 lg:border-l border-white/10 shrink-0 max-h-[45vh] lg:max-h-[85vh] overflow-hidden">
+                {/* Scrollable Text Area */}
+                <div className="overflow-y-auto pr-2 space-y-6 no-scrollbar flex-1">
+                  <div>
+                    <span className="inline-block px-3 py-1 bg-accent/10 border border-accent/30 text-accent text-xs font-bold uppercase tracking-widest rounded-full mb-3 shadow-[0_0_15px_rgba(196,251,109,0.15)]">
+                      {selectedDesign.category}
+                    </span>
+                    <h3 className="text-2xl lg:text-4xl font-display font-bold text-white uppercase tracking-tight leading-tight">
+                      {selectedDesign.title}
+                    </h3>
+                  </div>
+
+                  <div className="w-12 h-1 bg-accent/40 rounded-full shrink-0"></div>
+
+                  <p className="text-zinc-300 font-light text-sm lg:text-base leading-relaxed whitespace-pre-line">
+                    {selectedDesign.description || 'No detailed description provided.'}
                   </p>
                 </div>
                 
+                {/* Pinned Bottom Action Button */}
                 {selectedDesign.live_link && (
-                  <a 
-                    href={selectedDesign.live_link} 
-                    target="_blank" 
-                    rel="noreferrer"
-                    className="flex items-center justify-center gap-3 w-full bg-white text-zinc-950 font-bold uppercase tracking-widest py-5 rounded-full hover:bg-accent transition-colors mt-auto"
-                  >
-                    View Live Preview
-                    <ExternalLink className="w-5 h-5" />
-                  </a>
+                  <div className="pt-4 shrink-0 border-t border-white/10 mt-4">
+                    <a 
+                      href={selectedDesign.live_link} 
+                      target="_blank" 
+                      rel="noreferrer"
+                      className="flex items-center justify-center gap-3 w-full bg-white text-zinc-950 font-bold uppercase tracking-widest py-3.5 rounded-full hover:bg-accent transition-all duration-300 shadow-lg hover:shadow-[0_0_25px_rgba(196,251,109,0.3)] text-xs md:text-sm cursor-pointer"
+                    >
+                      View Live Preview
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                  </div>
                 )}
               </div>
             </motion.div>
