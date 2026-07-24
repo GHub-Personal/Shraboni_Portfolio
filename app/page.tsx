@@ -5,6 +5,7 @@ import { supabase } from '../src/lib/supabase';
 import { Design, ProfileSettings } from '../src/types';
 import { ExternalLink, Instagram, Linkedin, X, Mail, ArrowUpRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { PdfCarousel } from '../src/components/ui/PdfCarousel';
 
 const CATEGORIES = ['All', 'Posters', 'Carousels', 'Thumbnails', 'Banners'];
 
@@ -230,7 +231,7 @@ export default function Portfolio() {
                   <div className="aspect-[4/5] md:aspect-square overflow-hidden bg-transparent relative">
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 backdrop-blur-[2px]"></div>
                     <img 
-                      src={design.image_url} 
+                      src={design.image_url.split(',')[0]} 
                       alt={design.title} 
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                       loading="lazy"
@@ -255,6 +256,18 @@ export default function Portfolio() {
             </div>
           )}
         </div>
+      </section>
+
+      {/* Featured Carousel Section */}
+      <section className="py-24 px-6 relative bg-zinc-950/50 border-y border-white/5">
+        <PdfCarousel 
+          title="Featured Carousel Design"
+          images={[
+            '/carousel/slide1.png',
+            '/carousel/slide2.png',
+            '/carousel/slide3.png'
+          ]}
+        />
       </section>
 
       {/* Contact Section */}
@@ -327,7 +340,11 @@ export default function Portfolio() {
               onClick={e => e.stopPropagation()}
             >
               <div className="flex-1 bg-transparent flex items-center justify-center p-4 lg:p-12 min-h-[40vh] max-h-[60vh] lg:max-h-[85vh]">
-                <img src={selectedDesign.image_url} alt={selectedDesign.title} className="max-w-full max-h-full object-contain rounded-2xl shadow-2xl" />
+                {selectedDesign.category === 'Carousels' ? (
+                  <PdfCarousel images={selectedDesign.image_url.split(',')} />
+                ) : (
+                  <img src={selectedDesign.image_url.split(',')[0]} alt={selectedDesign.title} className="max-w-full max-h-full object-contain rounded-2xl shadow-2xl" />
+                )}
               </div>
               
               <div className="w-full lg:w-[450px] bg-black/40 backdrop-blur-3xl p-8 lg:p-12 flex flex-col justify-center overflow-y-auto border-t lg:border-t-0 lg:border-l border-white/5 max-h-[40vh] lg:max-h-[85vh]">

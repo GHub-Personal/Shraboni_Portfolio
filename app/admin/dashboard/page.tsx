@@ -40,24 +40,30 @@ export default function AdminDashboard() {
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     try {
       setUploading(true);
-      const file = e.target.files?.[0];
-      if (!file) return;
+      const files = Array.from(e.target.files || []);
+      if (!files.length) return;
 
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `${fileName}`;
+      const newUrls: string[] = [];
 
-      const { error: uploadError } = await supabase.storage
-        .from('portfolio-assets')
-        .upload(filePath, file);
+      for (const file of files) {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `${fileName}`;
 
-      if (uploadError) throw uploadError;
+        const { error: uploadError } = await supabase.storage
+          .from('portfolio-assets')
+          .upload(filePath, file);
 
-      const { data } = supabase.storage
-        .from('portfolio-assets')
-        .getPublicUrl(filePath);
+        if (uploadError) throw uploadError;
 
-      setImageUrl(data.publicUrl);
+        const { data } = supabase.storage
+          .from('portfolio-assets')
+          .getPublicUrl(filePath);
+
+        newUrls.push(data.publicUrl);
+      }
+
+      setImageUrl(prev => prev ? `${prev},${newUrls.join(',')}` : newUrls.join(','));
     } catch (error) {
       console.error('Error uploading image:', error);
       alert('Error uploading image. Make sure the portfolio-assets bucket exists and is public.');
@@ -188,7 +194,7 @@ export default function AdminDashboard() {
                     <td className="px-6 py-4">
                       <div className="w-16 h-16 rounded-lg bg-zinc-800 overflow-hidden">
                         {design.image_url && (
-                          <img src={design.image_url} alt={design.title} className="w-full h-full object-cover" />
+                          <img src={design.image_url.split(',')[0]} alt={design.title} className="w-full h-full object-cover" />
                         )}
                       </div>
                     </td>
@@ -228,14 +234,25 @@ export default function AdminDashboard() {
             <form onSubmit={handleSubmit} className="p-6 space-y-6">
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-zinc-400 mb-2">Image</label>
-                  <div className="flex items-center gap-4">
+                  <label className="block text-sm font-medium text-zinc-400 mb-2">Image(s)</label>
+                  <div className="flex flex-col gap-4">
                     {imageUrl && (
-                      <div className="w-24 h-24 rounded-lg bg-zinc-800 overflow-hidden shrink-0 border border-zinc-700">
-                        <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                      <div className="flex gap-2 flex-wrap">
+                        {imageUrl.split(',').filter(Boolean).map((url, i) => (
+                          <div key={i} className="w-24 h-24 rounded-lg bg-zinc-800 overflow-hidden shrink-0 border border-zinc-700 relative group">
+                            <img src={url} alt={`Preview ${i+1}`} className="w-full h-full object-cover" />
+                            <button 
+                              type="button"
+                              onClick={() => setImageUrl(prev => prev.split(',').filter((_, index) => index !== i).join(','))}
+                              className="absolute top-1 right-1 bg-black/70 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
                       </div>
                     )}
-                    <div className="flex-1">
+                    <div className="flex-1 w-full">
                       <label className="flex items-center justify-center w-full h-24 px-4 transition bg-zinc-950 border-2 border-zinc-800 border-dashed rounded-lg appearance-none cursor-pointer hover:border-zinc-700 focus:outline-none">
                         <span className="flex items-center space-x-2">
                           <Upload className="w-5 h-5 text-zinc-400" />
@@ -243,7 +260,7 @@ export default function AdminDashboard() {
                             {uploading ? 'Uploading...' : 'Drop files to Attach, or browse'}
                           </span>
                         </span>
-                        <input type="file" name="file_upload" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={uploading} />
+                        <input type="file" name="file_upload" className="hidden" accept="image/*" multiple onChange={handleImageUpload} disabled={uploading} />
                       </label>
                     </div>
                   </div>
