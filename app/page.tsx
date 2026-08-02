@@ -3,13 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../src/lib/supabase';
 import { Design, ProfileSettings, Feedback } from '../src/types';
-import { ExternalLink, Instagram, Linkedin, X, Mail, ArrowUpRight } from 'lucide-react';
+import { ExternalLink, Instagram, Linkedin, Youtube, X, Mail, ArrowUpRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { PdfCarousel } from '../src/components/ui/PdfCarousel';
 import { parseAspectRatio } from '../src/lib/utils';
 import { CloudOfTrust } from '../src/components/ui/CloudOfTrust';
 
-const CATEGORIES = ['All', 'Posters', 'Carousels', 'Thumbnails', 'Banners', 'Brand Collaborations', 'Social Media Management', 'Content Writing'];
+const CATEGORIES = ['All', 'Posters', 'Carousels', 'Thumbnails', 'Banners', 'Brand Collaborations', 'Content Writing'];
 
 export default function Portfolio() {
   const [profile, setProfile] = useState<ProfileSettings | null>(null);
@@ -23,6 +23,8 @@ export default function Portfolio() {
   const [contactName, setContactName] = useState('');
   const [contactEmail, setContactEmail] = useState('');
   const [contactMessage, setContactMessage] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<{ success: boolean; message: string } | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -68,12 +70,46 @@ export default function Portfolio() {
     return parseAspectRatio(ratio);
   };
 
-  const handleContactSubmit = (e: React.FormEvent) => {
+  const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert('Thank you for your message! (In a real app, this would send an email or save to DB)');
-    setContactName('');
-    setContactEmail('');
-    setContactMessage('');
+    setSubmitting(true);
+    setSubmitStatus(null);
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: contactName,
+          email: contactEmail,
+          message: contactMessage,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setSubmitStatus({
+          success: true,
+          message: 'Thank you! Your message has been sent successfully.',
+        });
+        setContactName('');
+        setContactEmail('');
+        setContactMessage('');
+      } else {
+        setSubmitStatus({
+          success: false,
+          message: data.error || 'Something went wrong. Please try again.',
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      setSubmitStatus({
+        success: false,
+        message: 'Failed to send request. Please check your connection and try again.',
+      });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (loading) {
@@ -169,8 +205,13 @@ export default function Portfolio() {
                 </a>
               )}
               {profile?.instagram_url && (
-                <a href={profile.instagram_url} target="_blank" rel="noreferrer" className="text-zinc-400 hover:text-accent transition-colors p-3.5 border border-white/10 hover:border-accent/50 rounded-full bg-white/5 backdrop-blur-md">
+                <a href={profile.instagram_url} target="_blank" rel="noreferrer" className="text-zinc-400 hover:text-accent transition-colors p-3.5 border border-white/10 hover:border-accent/50 rounded-full bg-white/5 backdrop-blur-md" title="Instagram">
                   <Instagram className="w-5 h-5" />
+                </a>
+              )}
+              {profile?.youtube_url && (
+                <a href={profile.youtube_url} target="_blank" rel="noreferrer" className="text-zinc-400 hover:text-accent transition-colors p-3.5 border border-white/10 hover:border-accent/50 rounded-full bg-white/5 backdrop-blur-md" title="YouTube">
+                  <Youtube className="w-5 h-5" />
                 </a>
               )}
             </div>
@@ -371,16 +412,32 @@ export default function Portfolio() {
           <div className="flex-1 w-full max-w-md bg-zinc-950 p-8 rounded-3xl border border-white/5">
             <form onSubmit={handleContactSubmit} className="space-y-6">
               <div>
-                <input type="text" placeholder="Your Name" value={contactName} onChange={(e) => setContactName(e.target.value)} required className="w-full bg-transparent border-b border-white/20 px-0 py-4 focus:border-accent outline-none transition-colors text-white placeholder:text-zinc-600 uppercase text-sm tracking-wider font-semibold" />
+                <input type="text" placeholder="Your Name" value={contactName} onChange={(e) => setContactName(e.target.value)} required disabled={submitting} className="w-full bg-transparent border-b border-white/20 px-0 py-4 focus:border-accent outline-none transition-colors text-white placeholder:text-zinc-600 uppercase text-sm tracking-wider font-semibold disabled:opacity-50" />
               </div>
               <div>
-                <input type="email" placeholder="Your Email" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} required className="w-full bg-transparent border-b border-white/20 px-0 py-4 focus:border-accent outline-none transition-colors text-white placeholder:text-zinc-600 uppercase text-sm tracking-wider font-semibold" />
+                <input type="email" placeholder="Your Email" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} required disabled={submitting} className="w-full bg-transparent border-b border-white/20 px-0 py-4 focus:border-accent outline-none transition-colors text-white placeholder:text-zinc-600 uppercase text-sm tracking-wider font-semibold disabled:opacity-50" />
               </div>
               <div>
-                <textarea placeholder="Tell me about your project" value={contactMessage} onChange={(e) => setContactMessage(e.target.value)} required rows={3} className="w-full bg-transparent border-b border-white/20 px-0 py-4 focus:border-accent outline-none transition-colors text-white placeholder:text-zinc-600 resize-none uppercase text-sm tracking-wider font-semibold"></textarea>
+                <textarea placeholder="Tell me about your project" value={contactMessage} onChange={(e) => setContactMessage(e.target.value)} required rows={3} disabled={submitting} className="w-full bg-transparent border-b border-white/20 px-0 py-4 focus:border-accent outline-none transition-colors text-white placeholder:text-zinc-600 resize-none uppercase text-sm tracking-wider font-semibold disabled:opacity-50"></textarea>
               </div>
-              <button type="submit" className="w-full bg-accent text-zinc-950 font-bold uppercase tracking-widest rounded-xl px-5 py-5 hover:bg-white transition-colors mt-8">
-                Send Request
+              
+              {submitStatus && (
+                <div className={`p-4 rounded-xl text-sm font-semibold tracking-wide uppercase transition-all duration-300 ${
+                  submitStatus.success 
+                    ? 'bg-accent/10 border border-accent/30 text-accent' 
+                    : 'bg-red-500/10 border border-red-500/30 text-red-400'
+                }`}>
+                  {submitStatus.message}
+                </div>
+              )}
+
+              <button type="submit" disabled={submitting} className="w-full bg-accent text-zinc-950 font-bold uppercase tracking-widest rounded-xl px-5 py-5 hover:bg-white transition-colors mt-8 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                {submitting ? (
+                  <>
+                    <span className="w-5 h-5 border-2 border-zinc-950 border-t-transparent rounded-full animate-spin"></span>
+                    Sending...
+                  </>
+                ) : 'Send Request'}
               </button>
             </form>
           </div>
@@ -414,11 +471,11 @@ export default function Portfolio() {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 30 }}
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
-              className="relative w-full max-w-7xl max-h-[90vh] flex flex-col lg:flex-row bg-zinc-950/80 backdrop-blur-3xl rounded-[2.5rem] overflow-hidden border border-white/10 shadow-[0_25px_70px_rgba(0,0,0,0.8)]" 
+              className="relative w-full max-w-7xl max-h-[90vh] flex flex-col md:flex-row bg-zinc-950/80 backdrop-blur-3xl rounded-2xl md:rounded-[2.5rem] overflow-y-auto md:overflow-hidden border border-white/10 shadow-[0_25px_70px_rgba(0,0,0,0.8)]" 
               onClick={e => e.stopPropagation()}
             >
               {/* Left Side: Design Image / Carousel */}
-              <div className="flex-1 bg-transparent flex items-center justify-center p-6 lg:p-12 min-h-[40vh] max-h-[60vh] lg:max-h-[85vh] overflow-hidden">
+              <div className="flex-1 bg-transparent flex items-center justify-center p-4 sm:p-6 lg:p-12 min-h-[300px] md:min-h-0 max-h-[50vh] md:max-h-[85vh] overflow-hidden">
                 {selectedDesign.category === 'Carousels' ? (
                   <PdfCarousel images={selectedDesign.image_url.split(',')} aspectRatio={selectedDesign.aspect_ratio} />
                 ) : (
@@ -426,13 +483,12 @@ export default function Portfolio() {
                     src={selectedDesign.image_url.split(',')[0]} 
                     alt={selectedDesign.title} 
                     className="max-w-full max-h-full object-contain rounded-2xl shadow-2xl" 
-                    style={{ aspectRatio: getAspectStyle(selectedDesign.aspect_ratio) }}
                   />
                 )}
               </div>
               
               {/* Right Side: Consistent Text Description Panel */}
-              <div className="w-full lg:w-[460px] bg-black/40 backdrop-blur-3xl p-6 md:p-8 lg:p-10 flex flex-col justify-between border-t lg:border-t-0 lg:border-l border-white/10 shrink-0 max-h-[45vh] lg:max-h-[85vh] overflow-hidden">
+              <div className="w-full md:w-[360px] lg:w-[460px] bg-black/40 backdrop-blur-3xl p-6 md:p-8 lg:p-10 flex flex-col justify-between border-t md:border-t-0 md:border-l border-white/10 shrink-0 max-h-[45vh] md:max-h-[85vh] overflow-hidden">
                 {/* Scrollable Text Area */}
                 <div className="overflow-y-auto pr-2 space-y-6 no-scrollbar flex-1">
                   <div>

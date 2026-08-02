@@ -19,8 +19,7 @@ export default function AdminProfile() {
     contact_email: '',
     linkedin_url: '',
     instagram_url: '',
-    dribbble_url: '',
-    behance_url: '',
+    youtube_url: '',
   });
 
   useEffect(() => {
@@ -78,17 +77,19 @@ export default function AdminProfile() {
     e.preventDefault();
     setSaving(true);
 
+    const { id, ...payload } = formData as any;
+
     let error;
     if (profileId) {
       const { error: updateError } = await supabase
         .from('profile_settings')
-        .update(formData)
+        .update(payload)
         .eq('id', profileId);
       error = updateError;
     } else {
       const { data, error: insertError } = await supabase
         .from('profile_settings')
-        .insert([formData])
+        .insert([payload])
         .select()
         .single();
       error = insertError;
@@ -176,22 +177,18 @@ export default function AdminProfile() {
         <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 md:p-8 space-y-6">
           <h2 className="text-xl font-semibold border-b border-zinc-800 pb-4">Social Links</h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <label className="block text-sm font-medium text-zinc-400 mb-2">LinkedIn URL</label>
               <input type="url" name="linkedin_url" value={formData.linkedin_url || ''} onChange={handleChange} className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-3 focus:ring-2 focus:ring-white/20 outline-none transition-all" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-zinc-400 mb-2">Behance URL</label>
-              <input type="url" name="behance_url" value={formData.behance_url || ''} onChange={handleChange} className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-3 focus:ring-2 focus:ring-white/20 outline-none transition-all" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-zinc-400 mb-2">Dribbble URL</label>
-              <input type="url" name="dribbble_url" value={formData.dribbble_url || ''} onChange={handleChange} className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-3 focus:ring-2 focus:ring-white/20 outline-none transition-all" />
-            </div>
-            <div>
               <label className="block text-sm font-medium text-zinc-400 mb-2">Instagram URL</label>
               <input type="url" name="instagram_url" value={formData.instagram_url || ''} onChange={handleChange} className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-3 focus:ring-2 focus:ring-white/20 outline-none transition-all" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-zinc-400 mb-2">YouTube URL</label>
+              <input type="url" name="youtube_url" value={formData.youtube_url || ''} onChange={handleChange} className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-3 focus:ring-2 focus:ring-white/20 outline-none transition-all" placeholder="https://youtube.com/@channel" />
             </div>
           </div>
         </div>

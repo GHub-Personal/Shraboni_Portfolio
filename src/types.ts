@@ -21,8 +21,9 @@ export interface ProfileSettings {
   contact_email: string;
   linkedin_url: string;
   instagram_url: string;
-  dribbble_url: string;
-  behance_url: string;
+  youtube_url?: string;
+  dribbble_url?: string;
+  behance_url?: string;
 }
 
 export interface Feedback {
