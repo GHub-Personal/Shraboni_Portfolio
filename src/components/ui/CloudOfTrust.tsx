@@ -2,19 +2,12 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Star, X, Eye } from 'lucide-react';
+import { Star, X, Eye, ArrowRight } from 'lucide-react';
 import { Feedback } from '../../types';
+import Link from 'next/link';
 
 interface CloudOfTrustProps {
   feedbacks: Feedback[];
-}
-
-interface BubbleLayout {
-  left: number; // percentage
-  top: number;  // percentage
-  depth: number; // 0, 1, 2 (back, mid, front)
-  color: string; // neon glow class
-  glowColor: string; // tailwind glow color
 }
 
 // Staggered layout coordinates positioned around a centered heading (approx. 40% - 60% top/left)
@@ -35,7 +28,6 @@ export function CloudOfTrust({ feedbacks }: CloudOfTrustProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [selectedFeedback, setSelectedFeedback] = useState<Feedback | null>(null);
-  const [scrollY, setScrollY] = useState(0);
 
   // Track mouse coordinates for desktop parallax
   useEffect(() => {
@@ -58,15 +50,6 @@ export function CloudOfTrust({ feedbacks }: CloudOfTrustProps) {
     };
   }, []);
 
-  // Track scroll position for mobile parallax
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   if (!feedbacks || feedbacks.length === 0) return null;
 
   // Generate dynamic parameters for each feedback bubble
@@ -79,17 +62,31 @@ export function CloudOfTrust({ feedbacks }: CloudOfTrustProps) {
   });
 
   return (
-    <div className="relative w-full overflow-hidden bg-zinc-950/20 py-20 border-y border-white/5">
+    <div className="relative w-full overflow-hidden bg-zinc-950/20 py-16 md:py-20 border-y border-white/5">
       {/* 1. DESKTOP EXPERIENCE */}
       <div 
         ref={containerRef}
         className="hidden lg:block relative w-full h-[95vh] min-h-[750px] max-w-7xl mx-auto"
       >
-        {/* Central typography heading */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 select-none">
+        {/* Central typography heading & floating View All Testimonials button */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10 select-none">
           <h2 className="text-5xl xl:text-6xl font-display font-extrabold text-center uppercase tracking-tighter leading-none max-w-2xl text-white">
             Trusted by <span className="block text-transparent stroke-text" style={{ WebkitTextStroke: '2px rgba(255,255,255,0.3)' }}>Creator Brands</span> & Visionaries Worldwide.
           </h2>
+
+          <motion.div 
+            animate={{ y: [0, -8, 0] }}
+            transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+            className="mt-8 pointer-events-auto"
+          >
+            <Link
+              href="/testimonials"
+              className="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-zinc-900/90 hover:bg-accent text-white hover:text-zinc-950 border border-accent/50 font-bold uppercase tracking-widest text-xs sm:text-sm transition-all duration-300 shadow-[0_0_30px_rgba(196,251,109,0.3)] hover:shadow-[0_0_45px_rgba(196,251,109,0.6)] cursor-pointer backdrop-blur-xl hover:scale-105"
+            >
+              View All Testimonials
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </motion.div>
         </div>
 
         {/* Ambient floating design bubbles */}
@@ -186,71 +183,96 @@ export function CloudOfTrust({ feedbacks }: CloudOfTrustProps) {
         })}
       </div>
 
-      {/* 2. MOBILE EXPERIENCE (Immersive Vertical Stream) */}
-      <div className="block lg:hidden px-4 max-w-xl mx-auto space-y-10">
-        <div>
-          <span className="inline-block px-3 py-1 bg-accent/10 border border-accent/30 text-accent text-xs font-bold uppercase tracking-widest rounded-full mb-3">
+      {/* 2. MOBILE & TABLET EXPERIENCE (Smooth Horizontal Floating Showcase) */}
+      <div className="block lg:hidden px-4 max-w-full mx-auto">
+        <div className="text-center max-w-xl mx-auto mb-6">
+          <span className="inline-block px-3 py-1 bg-accent/10 border border-accent/30 text-accent text-xs font-bold uppercase tracking-widest rounded-full mb-3 shadow-[0_0_15px_rgba(196,251,109,0.15)]">
             // Client Testimonials
           </span>
-          <h2 className="text-3xl font-display font-extrabold uppercase tracking-tight text-white leading-tight">
-            Trusted by Creator Brands & Visionaries Worldwide.
+          <h2 className="text-2xl sm:text-3xl font-display font-extrabold uppercase tracking-tight text-white leading-tight">
+            Trusted by Creator Brands & Visionaries
           </h2>
-          <p className="text-zinc-400 text-sm font-light mt-2">
-            Tap on any feedback screenshot below to inspect the authentic review.
+          <p className="text-zinc-400 text-xs sm:text-sm font-light mt-2">
+            Swipe horizontally to explore reviews. Tap any testimonial to view in full detail.
           </p>
         </div>
 
-        {/* High-density staggered vertical list */}
-        <div className="relative space-y-6 pt-4">
-          {feedbacks.map((feedback, idx) => {
-            const isLeft = idx % 2 === 0;
-            const colors = [
-              { border: 'border-cyan-400/50', glow: 'rgba(34,211,238,0.1)' },
-              { border: 'border-purple-400/50', glow: 'rgba(192,132,252,0.1)' },
-              { border: 'border-amber-500/50', glow: 'rgba(245,158,11,0.1)' },
-              { border: 'border-pink-500/50', glow: 'rgba(236,72,153,0.1)' },
-            ];
-            const activeColor = colors[idx % colors.length];
+        {/* Horizontal Floating Touch-Scroll Deck */}
+        <div className="relative w-full">
+          {/* Subtle side shadow hints for horizontal scrolling */}
+          <div className="absolute left-0 top-0 bottom-0 w-6 bg-gradient-to-r from-zinc-950/80 to-transparent z-10 pointer-events-none"></div>
+          <div className="absolute right-0 top-0 bottom-0 w-6 bg-gradient-to-l from-zinc-950/80 to-transparent z-10 pointer-events-none"></div>
 
-            // Simple parallax offset on scroll. Background/even items move slightly slower
-            const slowOffset = (scrollY * 0.05) % 25;
-            const translateOffset = idx % 3 === 0 ? slowOffset : 0;
+          <div className="flex gap-5 overflow-x-auto py-8 px-4 no-scrollbar snap-x snap-mandatory scroll-smooth items-center">
+            {feedbacks.map((feedback, idx) => {
+              const colors = [
+                { border: 'border-cyan-400/60', glow: 'rgba(34,211,238,0.2)' },
+                { border: 'border-purple-400/60', glow: 'rgba(192,132,252,0.2)' },
+                { border: 'border-amber-500/60', glow: 'rgba(245,158,11,0.2)' },
+                { border: 'border-pink-500/60', glow: 'rgba(236,72,153,0.2)' },
+                { border: 'border-accent/60', glow: 'rgba(196,251,109,0.2)' },
+              ];
+              const activeColor = colors[idx % colors.length];
 
-            return (
-              <motion.div
-                key={feedback.id}
-                style={{ y: translateOffset }}
-                onClick={() => setSelectedFeedback(feedback)}
-                className={`w-[90%] ${isLeft ? 'mr-auto' : 'ml-auto'} p-3.5 rounded-2xl bg-zinc-900/60 backdrop-blur-md border ${activeColor.border} shadow-[0_10px_30px_rgba(0,0,0,0.5)] flex flex-col gap-3 relative`}
-              >
-                {/* Header */}
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-white tracking-wide truncate max-w-[150px]">
-                    {feedback.provider_name}
-                  </span>
-                  <div className="flex items-center gap-1 bg-white/5 border border-white/10 px-1.5 py-0.5 rounded-full">
-                    <Star className="w-3 h-3 fill-accent text-accent" />
-                    <span className="text-[10px] font-bold text-zinc-300">{feedback.rating}</span>
+              return (
+                <motion.div
+                  key={feedback.id}
+                  animate={{
+                    y: [0, -8, 0],
+                  }}
+                  transition={{
+                    duration: 4 + (idx % 3),
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                    delay: idx * 0.35,
+                  }}
+                  onClick={() => setSelectedFeedback(feedback)}
+                  className={`shrink-0 snap-center w-[260px] sm:w-[290px] p-4 rounded-2xl bg-zinc-900/80 backdrop-blur-xl border ${activeColor.border} shadow-[0_12px_35px_rgba(0,0,0,0.6)] flex flex-col gap-3 relative cursor-pointer active:scale-95 transition-transform`}
+                  style={{ boxShadow: `0 0 22px ${activeColor.glow}` }}
+                >
+                  {/* Header */}
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-white tracking-wide truncate max-w-[160px]">
+                      {feedback.provider_name}
+                    </span>
+                    <div className="flex items-center gap-1 bg-white/5 border border-white/10 px-2 py-0.5 rounded-full">
+                      <Star className="w-3 h-3 fill-accent text-accent" />
+                      <span className="text-[10px] font-bold text-zinc-300">{feedback.rating}</span>
+                    </div>
                   </div>
-                </div>
 
-                {/* Screenshot view */}
-                <div className="relative w-full h-44 rounded-lg bg-zinc-950/40 border border-white/5 overflow-hidden flex items-center justify-center">
-                  <img 
-                    src={feedback.screenshot_url} 
-                    alt="Feedback Screenshot" 
-                    className="w-full h-full object-contain"
-                  />
-                  <div className="absolute top-2 right-2 p-1.5 rounded-full bg-black/60 backdrop-blur-md text-white">
-                    <Eye className="w-3.5 h-3.5 text-accent" />
+                  {/* Screenshot preview */}
+                  <div className="relative w-full h-36 sm:h-40 rounded-xl bg-zinc-950/60 border border-white/10 overflow-hidden flex items-center justify-center group/img">
+                    <img 
+                      src={feedback.screenshot_url} 
+                      alt="Feedback Screenshot" 
+                      className="w-full h-full object-contain"
+                    />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 flex items-center justify-center transition-opacity gap-1.5 text-xs text-white font-semibold">
+                      <Eye className="w-4 h-4 text-accent" />
+                      Tap to View
+                    </div>
                   </div>
-                </div>
 
-                {/* Tail pointer */}
-                <div className={`absolute -bottom-2 ${isLeft ? 'left-6' : 'right-6'} w-4 h-4 bg-zinc-900/60 border-r border-b ${activeColor.border.split('/')[0]} border-white/10 rotate-45 z-[-1]`} />
-              </motion.div>
-            );
-          })}
+                  {/* Tail pointer */}
+                  <div className={`absolute -bottom-2 left-8 w-4 h-4 bg-zinc-900/80 border-r border-b ${activeColor.border.split('/')[0]} rotate-45 z-[-1]`} />
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Floating View All Testimonials button on mobile/tablet */}
+        <div className="mt-4 text-center">
+          <motion.div animate={{ y: [0, -6, 0] }} transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}>
+            <Link
+              href="/testimonials"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-zinc-900/90 hover:bg-accent text-white hover:text-zinc-950 border border-accent/40 text-xs font-bold uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(196,251,109,0.25)] cursor-pointer"
+            >
+              View All Testimonials
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </motion.div>
         </div>
       </div>
 
