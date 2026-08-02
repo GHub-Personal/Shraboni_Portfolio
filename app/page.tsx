@@ -495,33 +495,35 @@ export default function Portfolio() {
         &copy; {new Date().getFullYear()} {profile?.name || 'DESIGNER'}. All rights reserved.
       </footer>
 
-      {/* Side-by-Side Lightbox Modal */}
+      {/* Lightbox Modal matching exact user reference diagram layout */}
       <AnimatePresence>
         {selectedDesign && (
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8 bg-black/95 backdrop-blur-2xl" 
+            className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 md:p-8 bg-black/95 backdrop-blur-2xl" 
             onClick={() => setSelectedDesign(null)}
           >
-            <button 
-              className="absolute top-6 right-6 p-3 bg-zinc-900/90 hover:bg-accent hover:text-zinc-950 text-white rounded-full transition-colors z-50 shadow-lg cursor-pointer"
-              onClick={(e) => { e.stopPropagation(); setSelectedDesign(null); }}
-            >
-              <X className="w-6 h-6" />
-            </button>
-            
             <motion.div 
               initial={{ scale: 0.9, opacity: 0, y: 30 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 30 }}
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
-              className="relative w-full max-w-7xl max-h-[90vh] flex flex-col md:flex-row bg-zinc-950/80 backdrop-blur-3xl rounded-2xl md:rounded-[2.5rem] overflow-y-auto md:overflow-hidden border border-white/10 shadow-[0_25px_70px_rgba(0,0,0,0.8)]" 
+              className="relative w-full max-w-6xl h-[88vh] max-h-[820px] flex flex-col md:flex-row bg-zinc-950/95 backdrop-blur-3xl rounded-3xl md:rounded-[2.5rem] overflow-hidden border border-white/10 shadow-[0_25px_70px_rgba(0,0,0,0.9)]" 
               onClick={e => e.stopPropagation()}
             >
-              {/* Left Side: Design Image / Carousel */}
-              <div className="flex-1 bg-transparent flex items-center justify-center p-4 sm:p-6 lg:p-12 min-h-[300px] md:min-h-0 max-h-[50vh] md:max-h-[85vh] overflow-hidden">
+              {/* Close Button cleanly placed top-right */}
+              <button 
+                className="absolute top-4 right-4 md:top-6 md:right-6 p-2.5 sm:p-3 bg-zinc-900/90 hover:bg-accent hover:text-zinc-950 text-white rounded-full transition-colors z-50 shadow-xl cursor-pointer border border-white/10"
+                onClick={(e) => { e.stopPropagation(); setSelectedDesign(null); }}
+                aria-label="Close modal"
+              >
+                <X className="w-5 h-5 sm:w-6 sm:h-6" />
+              </button>
+
+              {/* 1. TOP FIXED IMAGE / CAROUSEL CONTAINER (on Mobile/Tablet) & LEFT CONTAINER (on Desktop) */}
+              <div className="w-full md:flex-1 h-[42vh] sm:h-[48vh] md:h-full bg-transparent flex items-center justify-center pt-14 pb-4 px-4 sm:p-8 lg:p-12 shrink-0 overflow-hidden relative">
                 {selectedDesign.category === 'Carousels' ? (
                   <PdfCarousel images={selectedDesign.image_url.split(',')} aspectRatio={selectedDesign.aspect_ratio} />
                 ) : (
@@ -533,29 +535,29 @@ export default function Portfolio() {
                 )}
               </div>
               
-              {/* Right Side: Consistent Text Description Panel */}
-              <div className="w-full md:w-[360px] lg:w-[460px] bg-black/40 backdrop-blur-3xl p-6 md:p-8 lg:p-10 flex flex-col justify-between border-t md:border-t-0 md:border-l border-white/10 shrink-0 max-h-[45vh] md:max-h-[85vh] overflow-hidden">
-                {/* Scrollable Text Area */}
-                <div className="overflow-y-auto pr-2 space-y-6 no-scrollbar flex-1">
+              {/* 2. RIGHT CONTAINER (Mobile: Middle Scrollable Text + Pinned Bottom Live Button | Desktop: Side Panel) */}
+              <div className="w-full md:w-[360px] lg:w-[440px] bg-black/60 backdrop-blur-3xl flex flex-col justify-between border-t md:border-t-0 md:border-l border-white/10 flex-1 md:flex-none min-h-0">
+                {/* Scrollable Text Area (tag, title, description) */}
+                <div className="overflow-y-auto p-5 sm:p-6 lg:p-8 space-y-4 flex-1 no-scrollbar">
                   <div>
-                    <span className="inline-block px-3 py-1 bg-accent/10 border border-accent/30 text-accent text-xs font-bold uppercase tracking-widest rounded-full mb-3 shadow-[0_0_15px_rgba(196,251,109,0.15)]">
+                    <span className="inline-block px-3 py-1 bg-accent/10 border border-accent/30 text-accent text-xs font-bold uppercase tracking-widest rounded-full mb-2.5 shadow-[0_0_15px_rgba(196,251,109,0.15)]">
                       {selectedDesign.category}
                     </span>
-                    <h3 className="text-2xl lg:text-4xl font-display font-bold text-white uppercase tracking-tight leading-tight">
+                    <h3 className="text-xl sm:text-2xl lg:text-3xl font-display font-bold text-white uppercase tracking-tight leading-tight">
                       {selectedDesign.title}
                     </h3>
                   </div>
 
-                  <div className="w-12 h-1 bg-accent/40 rounded-full shrink-0"></div>
+                  <div className="w-10 h-1 bg-accent/40 rounded-full shrink-0"></div>
 
-                  <p className="text-zinc-300 font-light text-sm lg:text-base leading-relaxed whitespace-pre-line">
+                  <p className="text-zinc-300 font-light text-xs sm:text-sm lg:text-base leading-relaxed whitespace-pre-line">
                     {selectedDesign.description || 'No detailed description provided.'}
                   </p>
                 </div>
                 
-                {/* Pinned Bottom Action Button */}
+                {/* Fixed Bottom Live Preview Button */}
                 {selectedDesign.live_link && (
-                  <div className="pt-4 shrink-0 border-t border-white/10 mt-4">
+                  <div className="p-4 sm:p-6 shrink-0 border-t border-white/10 bg-zinc-950/80">
                     <a 
                       href={selectedDesign.live_link} 
                       target="_blank" 
