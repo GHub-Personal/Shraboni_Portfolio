@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../src/lib/supabase';
 import { Design, ProfileSettings, Feedback } from '../src/types';
-import { ExternalLink, Instagram, Linkedin, Youtube, X, Mail, ArrowUpRight } from 'lucide-react';
+import { ExternalLink, Instagram, Linkedin, Youtube, X, Mail, ArrowUpRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { PdfCarousel } from '../src/components/ui/PdfCarousel';
 import { parseAspectRatio } from '../src/lib/utils';
@@ -18,6 +18,12 @@ export default function Portfolio() {
   const [activeCategory, setActiveCategory] = useState('All');
   const [selectedDesign, setSelectedDesign] = useState<Design | null>(null);
   const [loading, setLoading] = useState(true);
+  const [visibleCount, setVisibleCount] = useState(4);
+  const featuredRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setVisibleCount(4);
+  }, [activeCategory]);
 
   // Form State
   const [contactName, setContactName] = useState('');
@@ -278,7 +284,32 @@ export default function Portfolio() {
             </div>
             
             <div className="relative group">
-              <div className="flex gap-6 overflow-x-auto pb-8 pt-4 no-scrollbar snap-x snap-mandatory scroll-smooth">
+              {/* Glassmorphic Navigation Buttons for Laptop & Tablet */}
+              <button
+                onClick={() => {
+                  if (featuredRef.current) {
+                    featuredRef.current.scrollBy({ left: -450, behavior: 'smooth' });
+                  }
+                }}
+                className="hidden md:flex absolute -left-4 lg:-left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-zinc-900/80 hover:bg-accent text-white hover:text-zinc-950 border border-white/20 hover:border-accent backdrop-blur-2xl items-center justify-center shadow-[0_10px_30px_rgba(0,0,0,0.8)] z-30 transition-all cursor-pointer opacity-90 hover:scale-110"
+                aria-label="Scroll left"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+
+              <button
+                onClick={() => {
+                  if (featuredRef.current) {
+                    featuredRef.current.scrollBy({ left: 450, behavior: 'smooth' });
+                  }
+                }}
+                className="hidden md:flex absolute -right-4 lg:-right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-zinc-900/80 hover:bg-accent text-white hover:text-zinc-950 border border-white/20 hover:border-accent backdrop-blur-2xl items-center justify-center shadow-[0_10px_30px_rgba(0,0,0,0.8)] z-30 transition-all cursor-pointer opacity-90 hover:scale-110"
+                aria-label="Scroll right"
+              >
+                <ChevronRight className="w-6 h-6" />
+              </button>
+
+              <div ref={featuredRef} className="flex gap-6 overflow-x-auto pb-8 pt-4 no-scrollbar snap-x snap-mandatory scroll-smooth">
                 {featuredDesigns.map((design) => {
                   const aspect = getAspectStyle(design.aspect_ratio);
                   return (
@@ -338,7 +369,7 @@ export default function Portfolio() {
           {/* Pinterest-style Masonry Columns */}
           <div className="columns-1 md:columns-2 lg:columns-3 gap-6 lg:gap-8 space-y-6 lg:space-y-8">
             <AnimatePresence>
-              {filteredDesigns.map((design) => {
+              {filteredDesigns.slice(0, visibleCount).map((design) => {
                 const aspect = getAspectStyle(design.aspect_ratio);
                 return (
                   <motion.div 
@@ -379,6 +410,21 @@ export default function Portfolio() {
               })}
             </AnimatePresence>
           </div>
+
+          {/* Glassmorphic View More Button */}
+          {filteredDesigns.length > visibleCount && (
+            <div className="mt-14 text-center">
+              <button
+                onClick={() => setVisibleCount(prev => prev + 4)}
+                className="inline-flex items-center gap-3 px-9 py-4 rounded-full bg-white/5 hover:bg-accent text-white hover:text-zinc-950 border border-white/15 hover:border-accent/60 backdrop-blur-2xl font-bold uppercase tracking-widest text-xs sm:text-sm transition-all duration-300 shadow-[0_10px_30px_rgba(0,0,0,0.5)] hover:shadow-[0_0_35px_rgba(196,251,109,0.35)] cursor-pointer transform hover:scale-105"
+              >
+                View More ({filteredDesigns.length - visibleCount} remaining)
+                <span className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold">
+                  +
+                </span>
+              </button>
+            </div>
+          )}
           {filteredDesigns.length === 0 && (
             <div className="py-32 text-center text-zinc-500 font-display text-2xl uppercase">
               No work found in this category.
