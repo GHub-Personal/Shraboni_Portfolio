@@ -43,29 +43,29 @@ export function PdfCarousel({ images, title, aspectRatio }: PdfCarouselProps) {
   const resolvedAspect = parseAspectRatio(aspectRatio);
 
   return (
-    <div className="w-full h-full flex flex-col justify-center items-center max-w-full max-h-full">
+    <div className="w-full h-full flex flex-col justify-between items-center max-w-full max-h-full min-h-0">
       {title && (
-        <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400">
+        <h2 className="text-2xl md:text-3xl font-bold mb-3 text-center bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400">
           {title}
         </h2>
       )}
       
-      <div className="relative group w-full h-full flex items-center justify-center overflow-hidden">
+      <div className="relative group w-full flex-1 flex items-center justify-center overflow-hidden min-h-0">
         <div 
-          className="overflow-hidden rounded-2xl shadow-2xl ring-1 ring-black/5 dark:ring-white/10 max-w-full" 
+          className="overflow-hidden rounded-2xl shadow-2xl ring-1 ring-black/5 dark:ring-white/10 max-w-full max-h-full flex items-center justify-center" 
           ref={emblaRef}
-          style={{ aspectRatio: resolvedAspect, maxHeight: '100%' }}
+          style={resolvedAspect ? { aspectRatio: resolvedAspect, maxHeight: '100%', maxWidth: '100%' } : { maxHeight: '100%', maxWidth: '100%' }}
         >
-          <div className="flex touch-pan-y h-full w-full">
+          <div className="flex touch-pan-y h-full w-full items-center">
             {images.map((src, index) => (
               <div
                 key={index}
-                className="relative flex-[0_0_100%] min-w-0 h-full w-full"
+                className="relative flex-[0_0_100%] min-w-0 h-full w-full flex items-center justify-center p-1"
               >
                 <img
                   src={src}
                   alt={`${title || 'Design'} page ${index + 1}`}
-                  className="w-full h-full object-contain bg-gray-50 dark:bg-gray-900"
+                  className="max-w-full max-h-full object-contain rounded-xl bg-gray-50 dark:bg-gray-900"
                 />
               </div>
             ))}
@@ -74,33 +74,33 @@ export function PdfCarousel({ images, title, aspectRatio }: PdfCarouselProps) {
 
         {/* Navigation Arrows */}
         <button
-          className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center rounded-full bg-white/80 dark:bg-black/80 backdrop-blur-md shadow-lg text-gray-800 dark:text-gray-200 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-0 hover:bg-white dark:hover:bg-black z-20"
+          className="absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center rounded-full bg-black/70 backdrop-blur-md text-white opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-0 hover:bg-black z-20 cursor-pointer shadow-lg"
           onClick={scrollPrev}
           disabled={!canScrollPrev}
           aria-label="Previous slide"
         >
-          <ChevronLeft className="w-6 h-6" />
+          <ChevronLeft className="w-5 h-5" />
         </button>
 
         <button
-          className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center rounded-full bg-white/80 dark:bg-black/80 backdrop-blur-md shadow-lg text-gray-800 dark:text-gray-200 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-0 hover:bg-white dark:hover:bg-black z-20"
+          className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center rounded-full bg-black/70 backdrop-blur-md text-white opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-0 hover:bg-black z-20 cursor-pointer shadow-lg"
           onClick={scrollNext}
           disabled={!canScrollNext}
           aria-label="Next slide"
         >
-          <ChevronRight className="w-6 h-6" />
+          <ChevronRight className="w-5 h-5" />
         </button>
       </div>
 
       {/* Pagination Dots */}
-      <div className="flex justify-center gap-3 mt-6">
+      <div className="flex justify-center gap-2 mt-2 shrink-0">
         {images.map((_, index) => (
           <button
             key={index}
-            className={`transition-all duration-300 rounded-full ${
+            className={`transition-all duration-300 rounded-full cursor-pointer ${
               index === selectedIndex
-                ? 'w-8 h-2.5 bg-blue-600 dark:bg-blue-400'
-                : 'w-2.5 h-2.5 bg-gray-300 dark:bg-gray-700 hover:bg-gray-400 dark:hover:bg-gray-600'
+                ? 'w-6 h-2 bg-accent'
+                : 'w-2 h-2 bg-white/30 hover:bg-white/60'
             }`}
             onClick={() => scrollTo(index)}
             aria-label={`Go to slide ${index + 1}`}
